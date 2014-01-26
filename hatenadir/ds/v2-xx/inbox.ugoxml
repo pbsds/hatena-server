@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ugo_xml>
+	<layout>
+		<value>2</value>
+		<value>1</value>
+	</layout>
+	<title>
+		<label>Inbox</label>
+		<label />
+		<label />
+		<label />
+		<label />
+		<num>0</num>
+	</title>
+	<button>
+		<label>Info</label>
+		<address>http://flipnote.hatena.com/ds/v2-xx/help/info.htm</address>
+		<trait>3</trait>
+	</button>
+</ugo_xml>

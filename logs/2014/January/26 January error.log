@@ -1,0 +1,14 @@
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "C:\Python27\lib\atexit.py", line 24, in _run_exitfuncs
+    func(*targs, **kargs)
+  File "C:\Users\pbsds\Desktop\Programming\python\hatena server\hatena.py", line 219, in write
+    f = open("database/Creators/%s/flipnotes.dat" % ID, "wb")
+IOError: [Errno 2] No such file or directory: 'database/Creators/9EEDCBF0AA42BE29/flipnotes.dat'
+Error in sys.exitfunc:
+Traceback (most recent call last):
+  File "C:\Python27\lib\atexit.py", line 24, in _run_exitfuncs
+    func(*targs, **kargs)
+  File "C:\Users\pbsds\Desktop\Programming\python\hatena server\hatena.py", line 219, in write
+    f = open("database/Creators/%s/flipnotes.dat" % ID, "wb")
+IOError: [Errno 2] No such file or directory: 'database/Creators/9EEDCBF0AA42BE29/flipnotes.dat'

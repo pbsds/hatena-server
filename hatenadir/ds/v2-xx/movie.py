@@ -135,7 +135,7 @@ class CreatorIDFile(resource.Resource):
 		
 		#Stars:
 		name = "Stars"
-		content = '<a href="http://flipnote.hatena.com/ds/v2-xx/movie/%s/%s.htm?mode=stardetail"><span class="star0c">?</span> <span class="star0">%s</span></a>' % (CreatorID, filename, flipnote[2])#yellow stars
+		content = u'<a href="http://flipnote.hatena.com/ds/v2-xx/movie/%s/%s.htm?mode=stardetail"><span class="star0c">\u2605</span> <span class="star0">%s</span></a>' % (CreatorID, filename, flipnote[2])#yellow stars
 		#todo: add other stars
 		Entries.append(PageEntryTemplate.replace("%%Name%%", name).replace("%%Content%%", content))
 		

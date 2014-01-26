@@ -182,7 +182,7 @@ def LoadHatenaStructure(Resource, path="hatenadir/ds/v2-xx", root = True):
 				folder = FolderResource()
 				LoadHatenaStructure(folder, os.path.join(path, os.path.basename(i)), False)
 				Resource.putChild(os.path.basename(i), folder)
-			
+
 #Flipnote handler:
 class Database:
 	def __init__(self):
