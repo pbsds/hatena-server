@@ -1,0 +1,10 @@
+#patterns
+*_bak
+*.pyc
+*.pyd
+*.pyo
+*.lnk
+
+#spesifics
+documentation
+flipnote details.htm
