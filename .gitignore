@@ -5,11 +5,11 @@
 *.pyo
 *.lnk
 
-#Don't need all these on github
+#Don't need all of these on github
 logs
 
-#not yet ready
+#not yet ready, this wil be put up on the wiki section later
 documentation
 
-#temp
+#temp file
 flipnote details.htm
