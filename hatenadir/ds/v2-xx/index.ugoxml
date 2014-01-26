@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ugo_xml>
+	<layout>
+		<value>0</value>
+	</layout>
+	<title>
+		<label />
+		<label />
+		<label />
+		<label />
+		<label />
+		<num>0</num>
+	</title>
+	<button>
+		<label>All Flipnotes</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/frontpage/hotmovies.uls</address>
+		<trait>100</trait>
+		<value />
+		<value>0</value>
+	</button>
+	<button>
+		<label>Announcement</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/information.uls</address>
+		<trait>102</trait>
+		<value />
+		<value>0</value>
+	</button>
+	<button>
+		<label>Channels</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/channels.uls</address>
+		<trait>101</trait>
+		<value />
+		<value>0</value>
+	</button>
+	<button>
+		<label>News</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/help/news.htm?mode=archives</address>
+		<trait>0</trait>
+		<value />
+		<value>0</value>
+		<embedded_file>__ntfts\News.ntft</embedded_file>
+	</button>
+	<button>
+		<label>Creator's Room</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/96FAD88031C49DE1/profile.htm?pm=80&amp;t=260</address>
+		<trait>104</trait>
+		<value />
+		<value>0</value>
+	</button>
+	<button>
+		<label>Special Room</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/special_room.htm</address>
+		<trait>1</trait>
+		<value />
+		<value>0</value>
+		<embedded_file>__ntfts\Special Room.ntft</embedded_file>
+	</button>
+	<button>
+		<label>Help</label>
+		<address>http://flipnote.hatena.com/ds/v2-eu/help/index_ww.htm</address>
+		<trait>117</trait>
+		<value />
+		<value>0</value>
+	</button>
+	<button>
+		<label>Command Search</label>
+		<address>ugomemo://command</address>
+		<trait>103</trait>
+		<value />
+		<value>0</value>
+	</button>
+</ugo_xml>
