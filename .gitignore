@@ -1,10 +1,15 @@
-#patterns
+#ignore patterns
 *_bak
 *.pyc
 *.pyd
 *.pyo
 *.lnk
 
-#spesifics
+#Don't need all these on github
+logs
+
+#not yet ready
 documentation
+
+#temp
 flipnote details.htm

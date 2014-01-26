@@ -228,7 +228,7 @@ class Database:
 	def FlipnoteExists(self, CreatorID, filename):
 		return os.path.exists("database/Creators/%s/%s.ppm" % (CreatorID, filename))
 	#interface:
-	def GetCreator(self, CreatorID, Load=False):#Load holds it in memory, use this when making changes or reading him often
+	def GetCreator(self, CreatorID, Store=False):#"Store" holds it in memory, use this when making changes or reading it often
 		if CreatorID in self.Creator:
 			return self.Creator[CreatorID]
 		else:
@@ -239,7 +239,7 @@ class Database:
 			ret = [i.split("\t") for i in f.read().split("\n")]
 			f.close()
 			
-			if Load:
+			if Store:
 				self.Creator[CreatorID] = ret
 			
 			return ret
@@ -285,7 +285,7 @@ class Database:
 				self.Views += 1
 				return True
 		return False
-	def AddStar(self, Creator, filename, amount=1):
+	def AddStar(self, CreatorID, filename, amount=1):
 		for i, flipnote in enumerate(self.GetCreator(CreatorID, True) or []):
 			if flipnote[0] == filename:
 				self.Creator[CreatorID][i][2] = int(flipnote[2]) + amount
