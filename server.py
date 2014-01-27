@@ -1,6 +1,15 @@
+#Settings:
+useWSGI = False#not fully tested and WILL NOT support multible instances/workers
+port = 8080
+
+#import:
+print "Importing modules..."
 from twisted.web import server#filehost
 from twisted.internet import reactor
-import sys, time, os
+if useWSGI: from twisted.application import internet, service
+
+import sys, time, os, atexit
+
 
 #Logging
 class Log:
@@ -9,6 +18,8 @@ class Log:
 			self.files = []
 		def write(self, data):
 			for i in self.files: i.write(data)
+		def flush(self):#ipython needs this
+			pass
 	def __init__(self):
 		minutes, seconds = map(int, time.strftime("%M %S").split(" "))
 		minutes = 59 - minutes
@@ -79,7 +90,7 @@ hatena.ServerLog = Log
 print "Setting up hatena site structure..."
 site = server.Site(hatena.Setup())
 
-#make the hatena server accept proxy coneections:
+#make the hatena server accept proxy connections:
 print "Setting up proxy hack..."
 silent = True
 old_lineReceived = site.protocol.lineReceived
@@ -96,8 +107,15 @@ site.protocol.lineReceived = lineReceived
 
 #run!
 print "Server start!\n"
-reactor.listenTCP(8080, site)#Hey listen!~
-reactor.run()
-
-#dunn
-Log.write("Server shutdown", True)
+if useWSGI:
+	application = service.Application('web')
+	sc = service.IServiceCollection(application)
+	internet.TCPServer(port, site).setServiceParent(sc)
+	
+	atexit.register(Log.write, String="Server shutdown", Silent=True)
+else:
+	reactor.listenTCP(port, site)#Hey listen!~
+	reactor.run()
+	
+	#dunn
+	Log.write("Server shutdown", True)
