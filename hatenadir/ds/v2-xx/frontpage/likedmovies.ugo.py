@@ -12,7 +12,8 @@ class PyResource(resource.Resource):
 		resource.Resource.__init__(self)
 		
 		self.pages = []#10 first pages
-		self.newestview = None
+		self.neweststar = None
+		self.newestflip = None
 		reactor.callLater(2, self.Update)#or it'll clash with hotmovies.ugo
 	def render(self, request):
 		page = int(request.args["page"][0]) if "page" in request.args else 1
@@ -29,8 +30,9 @@ class PyResource(resource.Resource):
 	def Update(self):#called every 15 minutes
 		reactor.callLater(60*10, self.Update)
 		
-		if self.newestview <> Database.Views:
-			self.newestview = Database.Views
+		if self.newestflip <> Database.Newest[0] or self.neweststar <> Database.Stars:
+			self.newestflip = Database.Newest[0]
+			self.neweststar = Database.Stars
 			reactor.callInThread(self.UpdateThreaded, Database.Newest)
 	def UpdateThreaded(self, flipnotes):#run in an another thread
 		#sort the flipnotes by viewcount, affected by amount of stars

@@ -13,6 +13,7 @@ class PyResource(resource.Resource):
 		
 		self.pages = []#10 first pages
 		self.newestview = None
+		self.newestflip = None
 		self.Update()
 	def render(self, request):
 		page = int(request.args["page"][0]) if "page" in request.args else 1
@@ -29,7 +30,8 @@ class PyResource(resource.Resource):
 	def Update(self):#called every 15 minutes
 		reactor.callLater(60*10, self.Update)
 		
-		if self.newestview <> Database.Views:
+		if self.newestflip <> Database.Newest[0] or self.newestview <> Database.Views:
+			self.newestflip = Database.Newest[0]
 			self.newestview = Database.Views
 			reactor.callInThread(self.UpdateThreaded, Database.Newest)
 	def UpdateThreaded(self, flipnotes):#run in an another thread
