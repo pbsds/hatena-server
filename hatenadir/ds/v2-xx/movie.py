@@ -10,7 +10,7 @@ class PyResource(resource.Resource):
 	def __init__(self):
 		resource.Resource.__init__(self)
 		
-		self.CreatorID = CreatorID()
+		self.CreatorID = CreatorIDResource()
 	def getChild(self, name, request):
 		if Database.CreatorExists(name):
 			return self.CreatorID
@@ -23,12 +23,12 @@ class PyResource(resource.Resource):
 		return "403 - Denied access"
 
 #The creator ID folder:
-class CreatorID(resource.Resource):
+class CreatorIDResource(resource.Resource):
 	isLeaf = False
 	def __init__(self):
 		resource.Resource.__init__(self)
 		
-		self.CreatorIDFile = CreatorIDFile()
+		self.CreatorIDFile = CreatorIDFileResource()
 	def getChild(self, name, request):
 		CreatorID = request.path.split("/")[-2]
 		filename = ".".join(name.split(".")[:-1])
@@ -44,7 +44,7 @@ class CreatorID(resource.Resource):
 		return "403 - Denied access"
 
 #Any public file inside creator ID folder:
-class CreatorIDFile(resource.Resource):
+class CreatorIDFileResource(resource.Resource):
 	isLeaf = True
 	def __init__(self):
 		resource.Resource.__init__(self)
@@ -52,13 +52,13 @@ class CreatorIDFile(resource.Resource):
 		creator, file = request.path.split("/")[-2:]
 		filetype = file.split(".")[-1].lower()
 		
-		if filetype == "ppm":
+		if filetype in "ppm":
 			#log it:
 			path = "/".join(request.path.split("/")[3:])
 			Log(request, path)
 			
 			#add a view:
-			Database.AddView(creator, file[:-4])
+			Database.AddView(creator, file[:4])
 			
 			#read ppm file:
 			f = open(Database.FlipnotePath(creator, file), "rb")
@@ -70,7 +70,7 @@ class CreatorIDFile(resource.Resource):
 			return data
 		elif filetype == "info":
 			path = "/".join(request.path.split("/")[3:])
-			Log(request, path)
+			Log(request, path, True)
 			request.responseHeaders.setRawHeaders('content-type', ['text/plain'])
 			return "0\n0\n"#undocumented what it means
 		elif filetype == "htm":
@@ -101,6 +101,12 @@ class CreatorIDFile(resource.Resource):
 			#report success
 			ServerLog.write("%s added %i stars to %s/%s.ppm" % (request.getClientIP(), amount, creator, file[:-5]), Silent)
 			return "Success"
+		elif filetype == "dl":
+			path = "/".join(request.path.split("/")[3:])
+			Log(request, path, True)
+			#this is POSTed to when it've been downloaded.
+			#todo: keep count
+			return "Noted ;)"#muhahaha!
 		else:
 			path = "/".join(request.path.split("/")[3:])
 			ServerLog.write("%s got 403 when requesting %s" % (request.getClientIP(), path), Silent)

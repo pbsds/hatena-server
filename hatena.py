@@ -6,7 +6,7 @@ from Hatenatools import *#UGO, PPM, TMB and NTFT
 ServerLog = None#Is set to the log class by server.py
 
 Silent = False
-def Log(request, path=None):
+def Log(request, path=None, silent=Silent):
 	if not path:
 		path = "\"%s\"" % request.path
 	ServerLog.write("%s requested %s" % (request.getClientIP(), path), Silent)
@@ -30,6 +30,15 @@ class NotFound(resource.Resource):
 		request.setResponseCode(404)
 		return "404 - Not Found\nThis proxy is only for Flipnote Hatena for the DSi."
 NotFound = NotFound()
+class ConnectionTest(resource.Resource):#used for people setting up the proxy in their DSi. It's nice to see it's actually working.
+	#http://conntest.nintendowifi.net/
+	isLeaf = True
+	def render(self, request):
+		ServerLog.write("%s performed a connection test" % request.getClientIP(), True)
+		request.responseHeaders.setRawHeaders('X-Organization', ['Nintendo'])#i hope this isn't illegal...
+		return '<html><head><title>HTML Page</title></head><body bgcolor="#FFFFFF">This is test.html page</body></html>'
+ConnectionTest = ConnectionTest()
+
 
 #Root structure:
 class Root(resource.Resource):#filters out non-hantena clients
@@ -42,6 +51,9 @@ class Root(resource.Resource):#filters out non-hantena clients
 		self.imagesResource = static.File("hatenadir/images/")
 	def getChild(self, name, request):
 		if "x-dsi-sid" not in request.getAllHeaders():
+			if "host" in request.getAllHeaders():
+				if request.getAllHeaders()["host"] == "conntest.nintendowifi.net":
+					return ConnectionTest
 			return AccessDenied
 		
 		if name == "ds":
@@ -56,6 +68,8 @@ class Root(resource.Resource):#filters out non-hantena clients
 		#return NotFound
 		return self
 	def render(self, request):
+		if request.getHost() == "conntest.nintendowifi.net":
+			return ConnectionTest
 		Log(request, "root")
 		return "Welcome to hatena.pbsds.net!\nThis is in early stages, so please don't expect too much."
 class ds(resource.Resource):#child of Root

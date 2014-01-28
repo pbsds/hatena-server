@@ -13,7 +13,7 @@ class PyResource(resource.Resource):
 		
 		self.pages = []#10 first pages
 		self.newestview = None
-		self.Update()
+		reactor.callLater(2, self.Update)#or it'll clash with hotmovies.ugo
 	def render(self, request):
 		page = int(request.args["page"][0]) if "page" in request.args else 1
 		
@@ -49,7 +49,7 @@ class PyResource(resource.Resource):
 			pages.append(self.MakePage(flipnotes[i*50:i*50+50], i+1, i<pagecount-1, flipcount))
 		
 		if self.pages:#not on startup
-			print time.strftime("[%H:%M:%S] Updated hotmovies.ugo")
+			print time.strftime("[%H:%M:%S] Updated likedmovies.ugo")
 		self.pages = pages
 	def MakePage(self, flipnotes, page, next, count):
 		ugo = UGO()
