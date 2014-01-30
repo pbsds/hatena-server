@@ -2,7 +2,8 @@ from twisted.web import resource
 from twisted.internet import reactor
 import time
 
-from hatena import Database, Log, NotFound
+from hatena import Log, NotFound
+from DB import Database
 from Hatenatools import UGO
 
 #makes a flipnote list of the most seen ones among the recently uploaded
@@ -77,12 +78,9 @@ class PyResource(resource.Resource):
 			ugo.Items.append(("button", 115, "Previous", "http://flipnote.hatena.com/ds/v2-xx/frontpage/hotmovies.uls?page=%i" % (page-1), ("", ""), None))
 		
 		#Flipnotes
-		for creatorid, filename in flipnotes:#[i*50 : i*50+50]:
+		for creatorid, filename in flipnotes:
 			stars = str(Database.GetFlipnote(creatorid, filename)[2])
-			
-			f = open(Database.FlipnotePath(creatorid, filename+".ppm"), "rb")
-			ugo.Items.append(("button", 3, "", "http://flipnote.hatena.com/ds/v2-xx/movie/%s/%s.ppm" % (creatorid, filename), (stars, "765", "573", "0"), ("bleh", f.read(0x6a0))))
-			f.close()
+			ugo.Items.append(("button", 3, "", "http://flipnote.hatena.com/ds/v2-xx/movie/%s/%s.ppm" % (creatorid, filename), (stars, "765", "573", "0"), (filename+".ppm", Database.GetFlipnoteTMB(creatorid, filename))))
 		
 		#next page
 		if next:

@@ -1,15 +1,15 @@
 #Settings:
-useWSGI = False#not fully tested and WILL NOT support multible instances/workers
+useWSGI = False#not fully tested and WILL NOT support multible instances/workers with the plaintext database
 port = 8080
 
 #import:
-print "Importing modules..."
+print "Importing modules...",
 from twisted.web import server#filehost
 from twisted.internet import reactor
 if useWSGI: from twisted.application import internet, service
 
 import sys, time, os, atexit
-
+print "Done!"
 
 #Logging
 class Log:
@@ -83,15 +83,21 @@ class Log:
 	Print = write
 Log = Log()
 
+#init database:
+print "Initializing flipnote database...",
+import DB
+print "Done!"
+
 #Setup hatena server:
-print "Setting up flipnote database..."
+print "Setting up hatena site...",
 import hatena
 hatena.ServerLog = Log
-print "Setting up hatena site structure..."
 site = server.Site(hatena.Setup())
+print "Done!"
+
 
 #make the hatena server accept proxy connections:
-print "Setting up proxy hack..."
+print "Setting up proxy hack...",
 silent = True
 old_lineReceived = site.protocol.lineReceived
 def lineReceived(self, line):
@@ -104,6 +110,7 @@ def lineReceived(self, line):
 		if not silent: print line
 	old_lineReceived(self, line)
 site.protocol.lineReceived = lineReceived
+print "Done!"
 
 #run!
 print "Server start!\n"

@@ -1,7 +1,8 @@
 from twisted.web import resource
 import os
 
-from hatena import Database, Log, ServerLog, Silent, NotFound
+from hatena import Log, ServerLog, Silent, NotFound
+from DB import Database
 from Hatenatools import TMB
 
 #The movie folder:
@@ -58,14 +59,12 @@ class CreatorIDFileResource(resource.Resource):
 			Log(request, path)
 			
 			#add a view:
-			Database.AddView(creator, file[:4])
+			Database.AddView(creator, file[:-4])
 			
 			#read ppm file:
-			f = open(Database.FlipnotePath(creator, file), "rb")
-			data = f.read()
-			f.close()
+			data = Database.GetFlipnotePPM(creator, file[:-4])
 			
-			#send file to client:
+			#send file to the client:
 			request.responseHeaders.setRawHeaders('content-type', ['text/plain'])
 			return data
 		elif filetype == "info":
@@ -74,7 +73,8 @@ class CreatorIDFileResource(resource.Resource):
 			request.responseHeaders.setRawHeaders('content-type', ['text/plain'])
 			return "0\n0\n"#undocumented what it means
 		elif filetype == "htm":
-			#maybe cache the details page of Database.Newest
+			#maybe cache the details page of Database.Newest?
+			
 			if "mode" in request.args:
 				if request.args["mode"][0] == "commentshalfsize":
 					pass
@@ -104,9 +104,11 @@ class CreatorIDFileResource(resource.Resource):
 		elif filetype == "dl":
 			path = "/".join(request.path.split("/")[3:])
 			Log(request, path, True)
-			#this is POSTed to when it've been downloaded.
-			#todo: keep count
-			return "Noted ;)"#muhahaha!
+			#this is POSTed to when it've been stored to memory.
+			
+			Database.AddDownload(creator, file[:-3])
+			
+			return "Noted ;)"
 		else:
 			path = "/".join(request.path.split("/")[3:])
 			ServerLog.write("%s got 403 when requesting %s" % (request.getClientIP(), path), Silent)
@@ -118,7 +120,7 @@ class CreatorIDFileResource(resource.Resource):
 		flipnote = Database.GetFlipnote(CreatorID, filename)#flipnote = [filename, views, stars, green stars, red stars, blue stars, purple stars, Channel], all probably strings
 		if not flipnote:
 			return "This flipnote doesn't exist!"
-		tmb = TMB().ReadFile(Database.FlipnotePath(CreatorID, filename+".ppm"))
+		tmb = TMB().Read(Database.GetFlipnoteTMB(CreatorID, filename))
 		if not tmb:
 			return "This flipnote is corrupt!"
 		
@@ -158,6 +160,8 @@ class CreatorIDFileResource(resource.Resource):
 		
 		#Comments:
 		Comments = "0"
+		
+		#doto: add original author info too
 		
 		#add the entries to page:
 		return DetailsPageTemplate.replace("%%CreatorID%%", CreatorID).replace("%%Filename%%", filename).replace("%%CommentCount%%", Comments).replace("%%Spinoff%%", Spinnoff).replace("%%PageEntries%%", PageEntrySeparator.join(Entries))

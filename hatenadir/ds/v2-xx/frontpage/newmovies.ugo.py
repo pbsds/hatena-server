@@ -2,7 +2,8 @@ from twisted.web import resource
 from twisted.internet import reactor
 import time
 
-from hatena import Database, Log, NotFound
+from hatena import Log, NotFound
+from DB import Database
 from Hatenatools import UGO
 
 #makes a flipnote list of the newest flipnotes
@@ -13,7 +14,7 @@ class PyResource(resource.Resource):
 		
 		self.pages = []#10 first pages
 		self.newestflip = None
-		self.Update()
+		reactor.callLater(4, self.Update)#or it'll clash with the others in the terminal
 	def render(self, request):
 		page = int(request.args["page"][0]) if "page" in request.args else 1
 		
@@ -73,10 +74,7 @@ class PyResource(resource.Resource):
 		#Flipnotes
 		for creatorid, filename in flipnotes:#[i*50 : i*50+50]:
 			stars = str(Database.GetFlipnote(creatorid, filename)[2])
-			
-			f = open(Database.FlipnotePath(creatorid, filename+".ppm"), "rb")
-			ugo.Items.append(("button", 3, "", "http://flipnote.hatena.com/ds/v2-xx/movie/%s/%s.ppm" % (creatorid, filename), (stars, "765", "573", "0"), ("bleh", f.read(0x6a0))))
-			f.close()
+			ugo.Items.append(("button", 3, "", "http://flipnote.hatena.com/ds/v2-xx/movie/%s/%s.ppm" % (creatorid, filename), (stars, "765", "573", "0"), (filename+".ppm", Database.GetFlipnoteTMB(creatorid, filename))))
 		
 		#next page
 		if next:
