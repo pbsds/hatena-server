@@ -8,5 +8,3 @@ This project uses Hatenatools, also written by me. It can be found here: http://
 
 To use it, simply run server.py
 On the DSi, set the proxy settings to point to this server on port 8080, then access Flipnote Studio as usual. A more detailed guide is on the wiki section.
-
-I'm on hosting an "official" server of this on hatena.pbsds.net on port 8080. It has very little bandwidth (5Mbps) so it doesn't work too well, so if anyone with the technical know-how is willing to host for me, please message me!
