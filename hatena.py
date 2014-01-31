@@ -1,5 +1,5 @@
 from twisted.web import static, resource
-import sys, os, glob, imp
+import sys, os, imp
 
 from Hatenatools import *#UGO, PPM, TMB and NTFT
 #from DB import Database#flipnote handler
@@ -163,27 +163,22 @@ class FolderResource(resource.Resource):
 		path = "/".join(request.path.split("/")[3:])
 		Log(request, path)
 		return "I am a folder, but I'm to lazy to list my contents..."
-def LoadHatenadirStructure(Resource, path="hatenadir/ds/v2-xx", root = True):
-	for i in glob.glob("%s\*" % path):
-		if os.path.isfile(i):
-			filename = os.path.basename(i)
+def LoadHatenadirStructure(Resource, path=os.path.join("hatenadir", "ds", "v2-xx")):
+	for root, dirs, files in os.walk(path):
+		if root <> path: continue#use recursion instead
+		for filename in files:
 			filetype = filename.split(".")[-1].lower()
+			os.path.join(path, filename)
 			
 			if filetype == "ugoxml":
-				Resource.putChild(filename[:-3], UGOXMLResource(i))
+				Resource.putChild(filename[:-3], UGOXMLResource(os.path.join(path, filename)))
 			elif filetype == "py":
 				try:
-					#sys.path.append(os.path.abspath(os.path.dirname(i)))
-					# #pyfile = __import__(filename[:-3])
-					#pyfile = importlib.import_module(filename[:-3])
-					#sys.path.pop(-1)
-					#pyfile = imp.load_module(i)
-					
-					pyfile = imp.load_source("pyfile", os.path.abspath(i))
+					pyfile = imp.load_source("pyfile", os.path.abspath(os.path.join(path, filename)))
 				except ImportError as err:
 					pyfile = None
 					print "Error!"
-					print "Failed to import the python file \"%s\"" % i
+					print "Failed to import the python file \"%s\"" % os.path.join(path, filename)
 					print err
 				
 				if pyfile:
@@ -192,11 +187,11 @@ def LoadHatenadirStructure(Resource, path="hatenadir/ds/v2-xx", root = True):
 				pass#ignore
 			else:
 				Resource.putChild(filename, FileResource(os.path.join(path, filename)))
-		elif os.path.isdir(i):
-			if os.path.basename(i)[:2] <> "__":
+		for foldername in dirs:# os.path.isdir(i):
+			if foldername[:2] <> "__":
 				folder = FolderResource()
-				LoadHatenadirStructure(folder, os.path.join(path, os.path.basename(i)), False)
-				Resource.putChild(os.path.basename(i), folder)
+				LoadHatenadirStructure(folder, os.path.join(path, foldername))
+				Resource.putChild(foldername, folder)
 
 #when loading:
 def Setup():

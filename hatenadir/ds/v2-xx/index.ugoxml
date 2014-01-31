@@ -24,6 +24,6 @@
 		<trait>0</trait>
 		<value />
 		<value>0</value>
-		<embedded_file>__ntfts\News.ntft</embedded_file>
+		<embedded_file>__ntfts/News.ntft</embedded_file>
 	</button>
 </ugo_xml>

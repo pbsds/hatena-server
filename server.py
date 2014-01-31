@@ -11,6 +11,20 @@ if useWSGI: from twisted.application import internet, service
 import sys, time, os, atexit
 print "Done!"
 
+#set working directory
+if os.path.dirname(__file__):
+	os.chdir(os.path.dirname(__file__))
+else:
+	for i in sys.path:
+		path = os.path.split(i)[0]
+		if not os.path.exists(os.path.join(path, "server.py")): continue
+		if not os.path.exists(os.path.join(path, "hatena.py")): continue
+		if not os.path.exists(os.path.join(path, "DB.py")): continue
+		os.chdir(path)
+		break
+	else:
+		print "Can't force working directory, may fail crash!"
+
 #Logging
 class Log:
 	class filesplit:#a file object writing to two outputs
