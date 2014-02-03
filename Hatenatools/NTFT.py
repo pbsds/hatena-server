@@ -1,12 +1,14 @@
 #NTFT.py by pbsds
-#Free to use as long as credit is given to pbsds / Peder Bergebakken Sundt
-#PIL is required to write images to disk
+#AGPL3 licensed
 #
-#Credit:
+#PIL is required to read and write images to disk
 #
-#	-The guys behind TiledGGD at https://code.google.com/p/tiledggd/
-#	 This sped up the my work a lot
-import sys
+#Credits:
+#
+#	-The guys behind TiledGGD. This sped up my work a lit.
+#	-Jsafive for supplying .ugo files
+#
+import sys, os
 try:
 	import Image
 	hasPIL = True
@@ -39,10 +41,28 @@ def DecAsc(dec, length=None, LittleEndian=False):#Converts a decimal into an asc
 			
 	if LittleEndian: out.reverse()
 	return "".join(map(chr, out))
+def clamp(value, min, max):
+	if value > max: return max
+	if value < min: return min
+	return value
 
 #Class NTFT:
 #
-#	todo: write documentation
+#	The NTFT image format stores RGB values as 5 bits each: a value between 0 and 31.
+#	It has 1 bit of transparancy, which means its either vidssible or invisible. No gradients.
+#	
+#	How to use:
+#		
+#		Converting to NTFT file:
+#			
+#			image = ReadImage(input_path)
+#			NTFT().SetImage(image).WriteFile(output_path)
+#			
+#		Reading NTFT file:
+#			
+#			ntft = NTFT().ReadFile(input_path, (width, height))
+#			WriteImage(ntft.Image, output_path)
+#		
 class NTFT:
 	def __init__(self):
 		self.Loaded = False
@@ -52,41 +72,89 @@ class NTFT:
 		f.close()
 		return ret
 	def Read(self, data, (w, h)):
-		if w*h*2 <> len(data):
-			print "Invalid size"
+		#the actual stored data is a image with the sizes padded to the nearest power of 2. The image is then clipped out from it.
+		psize = []
+		for i in (w, h):
+			p = 1
+			while 1<<p < i:
+				p += 1
+			psize.append(1<<p)
+		pw, ph = psize
+		
+		#check if it fits the file:
+		if pw*ph*2 <> len(data):
+			print "Invalid sizes"
 			return False
 		
+		#JUST DO IT!
 		self.Image = [[None for _ in xrange(h)] for _ in xrange(w)]
 		for y in xrange(h):
 			for x in xrange(w):
-				pos = (x + y*w)*2
-				#print pos
+				pos = (x + y*pw)*2
 				byte = AscDec(data[pos:pos+2], True)
-				byte = AscDec(data[pos:pos+2], True)
-				#ARGB1555 -> RGBA8:#require true
+				
+				#ARGB1555 -> RGBA8:
 				a = (byte >> 15       ) * 0xFF
 				b = (byte >> 10 & 0x1F) * 0xFF / 0x1F
 				g = (byte >> 5  & 0x1F) * 0xFF / 0x1F
 				r = (byte       & 0x1F) * 0xFF / 0x1F
-				# #RGB565 -> RGBA8:
-				# a = 0xFF
-				# r = (byte >> 11 & 0x1F) * 0xFF / 0x1F
-				# g = (byte >> 5  & 0x3F) * 0xFF / 0x3F
-				# b = (byte       & 0x1F) * 0xFF / 0x1F
-				#print x, y
+				
 				self.Image[x][y] = (r<<24) | (g<<16) | (b<<8) | a#RGBA8
 		
 		self.Loaded = True
 		return self
 	def WriteFile(self, path):
-		pass
+		if self.Loaded:
+			f = open(path, "wb")
+			f.write(self.Pack())
+			f.close()
+			return True
+		else:
+			return False
 	def Pack(self):
-		pass
+		if not self.Loaded:
+			return False
+		
+		w = len(self.Image[0])
+		h = len(self.Image)
+		
+		#the actual stored data is a image with the sizes padded to the nearest power of 2
+		psize = []
+		for i in size:
+			p = 1
+			while 1<<p < i:
+				p += 1
+			padded_size.append(1<<p)
+		
+		out = []
+		for y in xrange(psize[1]):
+			for x in xrange(psize[0]):
+				#read
+				c = self.Image[clamp(x, 0, w)][clamp(y, 0, h)]
+				r =  c >> 24
+				g = (c >> 16) & 0xFF
+				b = (c >> 8 ) & 0xFF
+				a =  c        & 0xFF
+				
+				#convert
+				a = 1 if a >= 0x80 else 0
+				r = r * 0x1F / 0xFF
+				g = g * 0x1F / 0xFF
+				b = b * 0x1F / 0xFF
+				
+				#store
+				out.append(DecAsc((a<<15) | (b<<10) | (g<<5) | r, 2, True))
+		
+		return "".join(out)
+	def SetImage(self, Image):
+		self.Image = Image
+		self.Loaded = True
+		return self
 
 #Function WriteImage:
 #
-#	Writes a 2D list if uint32 RGBA values as a image files.
-#	Designed to work with PPM().Thumbnail or PPM().GetFrame(n)
+#	Writes a 2D list of uint32 RGBA values as a image files.
+#	Designed to work with NTFT.Image
 #
 #	This function requires the PIl imaging module
 def WriteImage(image, outputPath):
@@ -104,8 +172,39 @@ def WriteImage(image, outputPath):
 	
 	return True
 
+#Function ReadImage:
+#
+#	Returns a 2D list of uint32 RGBA values of the image file.
+#	This can be passed into NTFT().SetImage()
+#
+#	This function requires the PIl imaging module
+def ReadImage(path):
+	if not hasPIL: return False
+	
+	image = Image.open(path)
+	pixeldata = image.getdata()
+	w, h = image.size
+	
+	if len(pixeldata[0]) < 4:
+		def Combine((r, g, b)):
+			return (r << 24) | (g << 16) | (b << 8) | 0xFF
+	else:
+		def Combine((r, g, b, a)):
+			return (r << 24) | (g << 16) | (b << 8) | a
+	
+	ret = []
+	for x in xrange(w):
+		line = []
+		for y in xrange(h):
+			line.append(Combine(pixeldata[y*w + x]))
+		ret.append(line)
+	
+	return ret
+
+
+
 #testing:
-# i = NTFT().ReadFile("NTFTtests/kaeru.ntft", (64, 32))
+# i = NTFT().ReadFile("NTFTtests/kaeru.ntft", (36, 30))
 # WriteImage(i.Image, "NTFTtests/kaeru.png")
 
 # i = NTFT().ReadFile("NTFTtests/News.ntft", (32, 32))
@@ -114,27 +213,58 @@ def WriteImage(image, outputPath):
 # i = NTFT().ReadFile("NTFTtests/Special Room.ntft", (32, 32))
 # WriteImage(i.Image, "NTFTtests/Special Room.png")
 
+#i = NTFT()
+#i.Loaded = True
+#i.Image = ReadImage("NTFTtests/geh.png")
+#i.WriteFile("NTFTtests/geh.ntft")
+
+
+
 if __name__ == "__main__":
 	print "              ==      NTFT.py     =="
 	print "             ==      by pbsds      =="
-	print "              ==       v0.05      =="
+	print "              ==       v0.70      =="
 	print
 	
-	if len(sys.argv) < 4:
+	if len(sys.argv) < 3:
 		print "Usage:"
-		print "      NTFT.py <input> <output> <width> <height>"
+		print "      NTFT.py <input> [<output> [<width> <height>]]"
 		print ""
-		print "The NTFT file contain only the colordata, so it's up to the user to find and"
-		print "store the resolution of the images."
-		print "32x32 is the normal size for button icons in UGO files."
+		print "Can convert a NTFT to PNG or the other way around."
+		print "if <output> isn't spesified it will be set to <input> with an another extention"
+		print ""
+		print "The NTFT file contain only the colordata, so it's up to the user to find or"
+		print "store the resolution of the image. <width> and <height> is required"
+		print "to convert a NTFT file to a image."
+		print "32x32 is the normal resolution for button icons in UGO files."
 		sys.exit()
 	
 	input = sys.argv[1]
-	output = sys.argv[2]
-	width = int(sys.argv[3])
-	height = int(sys.argv[4])
+	Encode = True#if false it'll decode
+	
+	if input[-4:].lower == "ntft" or len(sys.argv) >= 5:
+		Encode = False
+	
+	if len(sys.argv) >= 3:
+		output = sys.argv[2]
+		
+		if len(sys.argv) >= 5:
+			if (not sys.argv[3].isdigit()) or (not sys.argv[4].isdigit()):
+				print "Invalid sizes"
+				sys.exit()
+			width = int(sys.argv[3])
+			height = int(sys.argv[4])
+		else:
+			width, height = None, None
+	else:
+		output = ".".join(input.split(".")[:-1]) + (".ntft" if Encode else ".png")
 	
 	print "Converting..."
-	WriteImage(NTFT().ReadFile(input, (width, height)).Image, output)
+	if Encode:
+		i = NTFT()
+		i.Loaded = True
+		i.Image = ReadImage("NTFTtests/geh.png")
+		i.WriteFile(output)
+	else:
+		WriteImage(NTFT().ReadFile(input, (width, height)).Image, output)
 	print "Done!"
-	

@@ -5,17 +5,14 @@
 *.pyo
 *.lnk
 
-#is emberrasing... :3
+#is emberrasing... OwO'
 todo.txt
 
 #Don't need all of these on github
 logs
 
-#not for the public eye, this will be put up on the wiki section as i clean it up.
+#not clean enough for the public eye, this will be put up on the wiki section as i clean it up.
 documentation
 
-#temp file
-flipnote details.htm
-
 #muh server
-AWS
+VPS

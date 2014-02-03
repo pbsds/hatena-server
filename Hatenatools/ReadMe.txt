@@ -3,9 +3,9 @@
   ==  aka Peder Bergebakken Sundt  ==  
 
 --VERSIONS--
-PPM.py:  v1.03
-UGO.py:  v0.09
-NTFT.py: v0.05
+PPM.py:  v1.05
+UGO.py:  v0.92
+NTFT.py: v0.70
 
 --DESCRIPTION--
 PPM.py can read the metadata, thumbnail, frames and the sound of Flipnote Studio files: .ppm
@@ -20,11 +20,15 @@ Warning, it's still in a very crude state. Error will occour
 These are all tested and written in python 2.7
 These are all designed to be usable both as python modules and as stand alone applications.
 
---LICENCE--
-Free to use.
-They are free to modify as you wish as long you give credit to me, pbsds / Peder Bergebakken Sundt
+--DOCUMENTATION--
+Documentation on the formats can be found here:
+https://github.com/pbsds/hatena-server/wiki
+
+--LICENSE--
+This is licensed by AGPL3
+See License.txt
 
 --CREDIT--
 -Steven for most of the documentation on DSiBrew and his frame decoding example on his talkpage
 -Remark for helping me understanding the 8x8 tiling on the preview images.
--Austin Burk and Jsafive for supplying .tmb and .ugo files
+-JSAfive for supplying .tmb and .ugo files

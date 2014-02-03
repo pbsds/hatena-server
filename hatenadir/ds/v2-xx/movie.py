@@ -174,7 +174,7 @@ DetailsPageTemplate = """<html>
 		<meta name="starbutton" content="http://flipnote.hatena.com/ds/v2-xx/movie/%%CreatorID%%/%%Filename%%.star">
 		<meta name="savebutton" content="http://flipnote.hatena.com/ds/v2-xx/movie/%%CreatorID%%/%%Filename%%.ppm">
 		<meta name="playcontrolbutton" content="">
-		<link rel="stylesheet" href="http://flipnote.hatena.com/css/ds/camp100618.css">
+		<link rel="stylesheet" href="http://flipnote.hatena.com/css/ds/basic.css">
 	</head>
 	<body>
 		<table width="240" border="0" cellspacing="0" cellpadding="0" class="tab">
@@ -203,7 +203,7 @@ DetailsPageTemplate = """<html>
 		<table width="226" border="0" cellspacing="0" cellpadding="0" class="detail">%%PageEntries%%
 		</table>
 	</body>
-</html>"""#remember to remove camp100618.css
+</html>"""
 SpinoffTemplate1 = """
 		<div class="notice2" align="center">
 			This Flipnote is a spin-off.<br>

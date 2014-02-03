@@ -1,13 +1,14 @@
 #PPM.py by pbsds for python 2.7
-#Free to use. Publicated modifications must give credit to pbsds / Peder Bergebakken Sundt
-#PIL is required to write frames and thumbnails to disk
+#AGPL3 licensed
+#
+#PIL is required to write images to disk
 #
 #Credits:
 #
 #	-Steven for most of the documentation on DSiBrew and his frame decoding example on his talkpage
 #	-Remark for help on the 8x8 tiling on the preview image.
-#	-Austin Burk and Jsafive for supplying .tmb files
-
+#	-Jsafive for supplying .tmb files
+#
 import sys, wave#needs os and time aswell
 try:
 	import Image
@@ -562,7 +563,7 @@ def WriteImage(image, outputPath):
 	return True
 
 #this is just for experimenting with sound decoding:
-#not even close to being finished
+#not even remotely close to being finished
 def DecodeSound(outputpath, data):
 	f = wave.open(outputpath, "wb")
 	f.setnchannels(1)
@@ -580,35 +581,34 @@ def DecodeSound(outputpath, data):
 		f.writeframes(DecAsc(i2<<12, 2, True)*4)
 	f.close()
 
-#for testing during development:
-if 1 == 2:
-	p = PPM()
-	print "loading ppm..."
-	p.ReadFile("PPMtests/test.ppm", (1, 1, 1))
-	
-	print str(p.OriginalAuthorName), str(p.OriginalAuthorID)
-	print str(p.EditorAuthorName), str(p.EditorAuthorID)
-	
-	print "Dumping Thumbnail..."
-	WriteImage(p.Thumbnail, "thumbnail.png")
-	
-	print "Dumping frames..."
-	for i in xrange(p.FrameCount):
-		WriteImage(p.GetFrame(i), "frames/frame %i.png" % i)
-		
-	print "Dumping raw sounds..."
-	for i, data in enumerate(p.SoundData):
-		f = open("sound %i.bin" % i, "wb")
-		f.write(data)
-		f.close()
-	
-	print "Extracting sounds...."
-	for i, d in enumerate(p.SoundData): DecodeSound("out_%i.wav"%i, d)
+#testing:
+# p = PPM()
+# print "loading ppm..."
+# p.ReadFile("PPMtests/test.ppm", (1, 1, 1))
+
+# print str(p.OriginalAuthorName), str(p.OriginalAuthorID)
+# print str(p.EditorAuthorName), str(p.EditorAuthorID)
+
+# print "Dumping Thumbnail..."
+# WriteImage(p.Thumbnail, "thumbnail.png")
+
+# print "Dumping frames..."
+# for i in xrange(p.FrameCount):
+	# WriteImage(p.GetFrame(i), "frames/frame %i.png" % i)
+
+# print "Dumping raw sounds..."
+# for i, data in enumerate(p.SoundData):
+	# f = open("sound %i.bin" % i, "wb")
+	# f.write(data)
+	# f.close()
+
+# print "Extracting sounds...."
+# for i, d in enumerate(p.SoundData): DecodeSound("out_%i.wav"%i, d)
 
 if __name__ == '__main__':
 	print "              ==      PPM.py      =="
 	print "             ==      by pbsds      =="
-	print "              ==       v1.03      =="
+	print "              ==       v1.05      =="
 	print
 	
 	if len(sys.argv) < 3:
@@ -616,16 +616,16 @@ if __name__ == '__main__':
 		print "      PPM.py <Mode> <Input> [<Output>] [<Frame>]"
 		print ""
 		print "      <Mode>:"
-		print "          0: Extracts the thumbnail to the file <Output>"
-		print "          1: Extracts the frame(s) to <Output>"
-		print "          2: Dumps the raw sound data files to the folder <Output>"
-		print "          3: Same as mode 2, but will also dump the experimentally decoded"
-		print "             sounds."
-		print "          4: Prints out the metadata. Can also write it to <output> which also"
-		print "             supports unicode charactes."
-		print "          Mode 0 and 4 supports TMB files aswell"
+		print "          -t: Extracts the thumbnail to the file <Output>"
+		print "          -f: Extracts the frame(s) to <Output>"
+		print "          -s: Dumps the raw sound data files to the folder <Output>"
+		print "          -S: Same as mode 2, but will also dump the experimentally decoded"
+		print "              sounds."
+		print "          -m: Prints out the metadata. Can also write it to <output> which also"
+		print "              supports unicode charactes."
+		print "          Mode -t and -m supports TMB files aswell"
 		print "      <Frame>"
-		print "          Only used in mode 1"
+		print "          Only used in mode -f"
 		print "          Set this to the exact frame you want to extract(starting at 1) and it"
 		print "          will be saved as a file to <Output>."
 		print "          If not specified, it will extract all frames to the folder <Output>"
@@ -634,7 +634,7 @@ if __name__ == '__main__':
 	
 	import os, time
 	
-	if sys.argv[1]   == "0":
+	if sys.argv[1]   == "-t":
 		print "Reading the flipnote file...",
 		if not os.path.isfile(sys.argv[2]):
 			print "Error!\nSpecified file doesn't exist!"
@@ -649,7 +649,7 @@ if __name__ == '__main__':
 		print "Dumping the thumbnail...",
 		WriteImage(flipnote.GetThumbnail(), sys.argv[3])
 		print "Done!"
-	elif sys.argv[1] == "1":
+	elif sys.argv[1] == "-f":
 		if len(sys.argv) < 4:
 			print "Error!"
 			print "<Output> not specified!"
@@ -689,7 +689,7 @@ if __name__ == '__main__':
 			print "Dumping frame #%i..." % int(sys.argv[4]),
 			WriteImage(flipnote.GetFrame(int(sys.argv[4])-1), sys.argv[3])
 			print "Done!"
-	elif sys.argv[1] in "23":
+	elif sys.argv[1] in ("-s", "-S"):
 		if len(sys.argv) < 4:
 			print "Error!"
 			print "<Output> not specified!"
@@ -716,7 +716,7 @@ if __name__ == '__main__':
 			f.close()
 		print "Done!"
 		
-		if sys.argv[1] == "3":
+		if sys.argv[1] == "-S":
 			print "Dumping the decoded sound data...",
 			for i, data in enumerate(flipnote.SoundData):
 				DecodeSound(os.path.join(sys.argv[3], ("BGM decoded.wav", "SFX1 decoded.wav", "SFX2 decoded.wav", "SFX3 decoded.wav")[i]), data)
@@ -728,7 +728,7 @@ if __name__ == '__main__':
 			f.write("Frame %i:%s%s%s\n" % (i, " SFX1"*s1, " SFX2"*s2, " SFX3"*s3))
 		f.close()
 		print "Done!"
-	elif sys.argv[1] == "4":
+	elif sys.argv[1] == "-m":
 		epoch = time.mktime(time.struct_time([2000, 1, 1, 0, 0, 0, 5, 1, -1]))
 		
 		if not os.path.isfile(sys.argv[2]):
