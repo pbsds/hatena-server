@@ -130,7 +130,7 @@ class NTFT:
 		for y in xrange(psize[1]):
 			for x in xrange(psize[0]):
 				#read
-				c = self.Image[clamp(x, 0, w)][clamp(y, 0, h)]
+				c = self.Image[clamp(x, 0, w-1)][clamp(y, 0, h-1)]
 				r =  c >> 24
 				g = (c >> 16) & 0xFF
 				b = (c >> 8 ) & 0xFF
@@ -223,7 +223,7 @@ def ReadImage(path):
 if __name__ == "__main__":
 	print "              ==      NTFT.py     =="
 	print "             ==      by pbsds      =="
-	print "              ==       v0.70      =="
+	print "              ==       v0.71      =="
 	print
 	
 	if len(sys.argv) < 3:
