@@ -223,8 +223,11 @@ def ReadImage(path):
 if __name__ == "__main__":
 	print "              ==      NTFT.py     =="
 	print "             ==      by pbsds      =="
-	print "              ==       v0.71      =="
+	print "              ==       v0.72      =="
 	print
+	
+	if not hasPIL:
+		print "PIL not found! Exiting..."
 	
 	if len(sys.argv) < 3:
 		print "Usage:"
@@ -263,7 +266,7 @@ if __name__ == "__main__":
 	if Encode:
 		i = NTFT()
 		i.Loaded = True
-		i.Image = ReadImage("NTFTtests/geh.png")
+		i.Image = ReadImage(input)
 		i.WriteFile(output)
 	else:
 		WriteImage(NTFT().ReadFile(input, (width, height)).Image, output)
