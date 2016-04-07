@@ -113,22 +113,30 @@ print "Done!"
 #make the hatena server accept proxy connections:
 print "Setting up proxy hack...",
 silent = True
-old_lineReceived = site.protocol.lineReceived
-def lineReceived(self, line):
-	if not silent: print line
-	if line[:31] == "GET http://flipnote.hatena.com/":
-		line = "GET " + line[30:]
-		if not silent: print line
-	elif line[:32] == "POST http://flipnote.hatena.com/":
-		line = "POST " + line[31:]
-		if not silent: print line
-	old_lineReceived(self, line)
-site.protocol.lineReceived = lineReceived
+old_buildProtocol = site.buildProtocol
+def buildProtocol(self, addr):
+	protocol = old_buildProtocol(addr)
+	
+	protocol.new_recv_buffer= []
+	
+	old_dataReceived = protocol.dataReceived
+	def dataReceived(self, data):
+		#i'll assume the GET request doesn't get fragmented, which should be safe with a mtu at 1500, a crash doesn't matter really anyway. too much work for a simple twisted upgrade on a dropped project
+		for check, repl in (("GET http://flipnote.hatena.com", "GET "), ("POST http://flipnote.hatena.com", "POST ")):
+			if check in data:
+				data = data.replace(check, repl)
+		old_dataReceived(data)
+	funcType = type(protocol.dataReceived)
+	protocol.dataReceived = funcType(dataReceived, protocol, protocol.__class__)
+	return protocol
+funcType = type(site.buildProtocol)
+site.buildProtocol = funcType(buildProtocol, site, server.Site)
 print "Done!"
 
 #run!
 print "Server start!\n"
 if useWSGI:
+	#probably doesn't work
 	application = service.Application('web')
 	sc = service.IServiceCollection(application)
 	internet.TCPServer(port, site).setServiceParent(sc)
