@@ -87,11 +87,16 @@ class CreatorIDFileResource(resource.Resource):
 			#bad formatting
 			if "x-hatena-star-count" not in headers:
 				ServerLog.write("%s got 403 when requesting %s without a X-Hatena-Star-Count header" % (request.getClientIP(), path), Silent)
-				request.setResponseCode(400)
-				return "400 - Denied access\nRequest lacks a X-Hatena-Star-Count http header"
+				request.setResponseCode(403)
+				return "403 - Denied access\nRequest lacks a X-Hatena-Star-Count http header"
 			
 			#add the stars:
 			amount = int(headers["x-hatena-star-count"])
+			if (amount < 1) or (amount > 65535):
+				ServerLog.write("%s got 403 when requesting %s with an invalid X-Hatena-Star-Count header" % (request.getClientIP(), path), Silent)
+				request.setResponseCode(403)
+				return "403 - Denied access\nRequest has an invalid X-Hatena-Star-Count http header"
+			
 			if not Database.AddStar(creator, file[:-5], amount):
 				#error
 				ServerLog.write("%s got 500 when requesting %s" % (request.getClientIP(), path), Silent)
