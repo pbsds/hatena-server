@@ -158,10 +158,10 @@ class CreatorIDFileResource(resource.Resource):
 		Entries.append(PageEntryTemplate.replace("%%Name%%", name).replace("%%Content%%", content))
 		
 		# Downloads:
-                name = "Downloads"
-                content = str(flipnote[8])
-                Entries.append(PageEntryTemplate.replace("%%Name%%", name).replace("%%Content%%", content))
-		
+		name = "Downloads"
+		content = str(flipnote[8])
+		Entries.append(PageEntryTemplate.replace("%%Name%%", name).replace("%%Content%%", content))
+
 		#Channel:
 		if flipnote[7]:#todo: make channels work at all
 			name = "Channel"
